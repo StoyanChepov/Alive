@@ -68,6 +68,10 @@ label:hover {
   margin-top: 20px;
 }
 
+.mot-img {
+  width: 50%;
+}
+
 /* modal styles */
 div.backdrop {
   display: flex;

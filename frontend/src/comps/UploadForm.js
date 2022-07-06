@@ -12,6 +12,7 @@ const UploadForm = () => {
     const getImage = () => {
       const img = new Image();
       img.src = URL.createObjectURL(file);
+
       if (file && types.includes(file.type)) {
         img.onload = () => {
           setImage({
