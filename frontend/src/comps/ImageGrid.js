@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const ImageGrid = ({ setSelectedImg }) => {
   const { docs } = useFirestore("images");
-  
+
   return (
     <ul className="img-container">
       {docs &&
@@ -21,6 +21,8 @@ const ImageGrid = ({ setSelectedImg }) => {
             <motion.img
               className="mot-img"
               src={doc.url}
+              width={doc.width/2}
+              height={doc.height/2}
               alt="uploaded pic"
               crossOrigin='anonymous'
               initial={{ opacity: 0 }}

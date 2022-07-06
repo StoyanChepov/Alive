@@ -20,7 +20,7 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
     faces.map((face) => console.log(face.length));
     const ctx = canvasRef.current.getContext("2d");
     ctx.lineWidth = 5;
-    ctx.strokeStyle = "yellow";
+    ctx.strokeStyle = "red";
     faces.map((face) => ctx.strokeRect(face.distanceLeft, face.distanceTop, face.length, face.width));
   };
 
