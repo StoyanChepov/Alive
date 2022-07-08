@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import useFacePositions from "../hooks/useFacePositions";
 import { motion } from "framer-motion";
 
@@ -7,8 +7,7 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
   const imgRef = useRef();
   const canvasRef = useRef();
   const { faces } = useFacePositions(selectedImg.id);
-  console.log("Darling ", faces);
-
+  
   const handleClick = (e) => {
     if (e.target.classList.contains("backdrop")) {
       setSelectedImg(null);
@@ -17,7 +16,6 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
   };
 
   const enter = () => {
-    faces.map((face) => console.log(face.length));
     const ctx = canvasRef.current.getContext("2d");
     ctx.lineWidth = 5;
     ctx.strokeStyle = "red";
@@ -61,7 +59,7 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
               left: face.distanceLeft,
               top: face.distanceTop + face.width + 5,
             }}
-            placeholder="Tag a friend"
+            placeholder= {face.personId}
             key={i}
             className="friendInput"
             onKeyPress={addFriend}

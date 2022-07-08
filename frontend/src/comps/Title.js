@@ -3,9 +3,9 @@ import React from 'react';
 const Title = () => {
   return (
     <div className="title">
-      <h1>FireGram</h1>
-      <h2>Your Pictures</h2>
-      <p>Face recognision is used to find mathes.</p>
+      <h1>Bild Klassifizierung</h1>
+      <h2>Ihre Blider</h2>
+      <p>Tag die Leute!</p>
     </div>
   )
 }

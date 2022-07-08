@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import { onSnapshot, collection, query, where } from "firebase/firestore";
+import { onSnapshot, collection, query } from "firebase/firestore";
 
-const useFacePositions = (imageId) => {
-  const [faces, setfacePos] = useState([]);
+const usePersons = () => {
+  const [persons, setPersons] = useState([]);
 
   useEffect(() => {
-    const q = query(collection(db, 'facePositions'), where('imageId', '==', imageId));
+    const q = query(collection(db, 'persons'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const documents = [];
         querySnapshot.forEach((doc) => {
           documents.push({ ...doc.data(), id: doc.id });
         });
-        setfacePos(documents);
+        setPersons(documents);
       });
   
       return () => unsubscribe();
-    }, [imageId]);
-  return { faces };
+    }, []);
+  return { persons };
 };
 
-export default useFacePositions;
+export default usePersons;
