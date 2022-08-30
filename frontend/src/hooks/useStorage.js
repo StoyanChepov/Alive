@@ -28,8 +28,10 @@ const useStorage = (image) => {
           .withFaceLandmarks()
           .withFaceDescriptor();
         descriptions.push(results2.descriptor);
-
-        return new faceapi.LabeledFaceDescriptors(label.name, descriptions);
+        return new faceapi.LabeledFaceDescriptors(
+          label.personId.concat("$", label.name),
+          descriptions
+        );
       })
     );
   }
@@ -76,10 +78,13 @@ const useStorage = (image) => {
     if (!resul.length) {
       return;
     }
-
-    let labeledFaces = await loadLabeledImages(persons);
-    console.log("Labeled Faces ", labeledFaces);
-    const faceMatcher = new faceapi.FaceMatcher(labeledFaces, 0.6);
+    let faceMatcher;
+    if (persons.length !== 0) {
+      console.log('i go here');
+      let labeledFaces = await loadLabeledImages(persons);
+      console.log("Labeled Faces ", labeledFaces);
+      faceMatcher = new faceapi.FaceMatcher(labeledFaces, 0.6);
+    }
     const container = document.createElement("div");
     let testImage = await faceapi.bufferToImage(image.file);
     container.append(testImage);
@@ -93,7 +98,9 @@ const useStorage = (image) => {
       .withFaceDescriptors();
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
     return resizedDetections.map((d) => ({
-      match: faceMatcher.findBestMatch(d.descriptor),
+      match: faceMatcher
+        ? faceMatcher.findBestMatch(d.descriptor)
+        : { label: "$unknown" },
       shape: Object.values(d.detection.box),
       personId: "",
     }));
@@ -158,20 +165,25 @@ const useStorage = (image) => {
         const img = new Image();
         img.src = URL.createObjectURL(image.file);
         for (let index = 0; index < detections.length; index++) {
-          if (detections[index].match.label === "unknown") {
+          const personLabel = detections[index].match.label;
+          detections[index].fullName = '';
+          if (personLabel === "unknown" || personLabel.split("$")[1] === "unknown") {
             let data = await extractFaceFromBox(img, detections[index].shape);
             let uuid = uuidv4();
-            detections[index].personId = "_person_" + uuid;
+            detections[index].personId = uuid;
             await setDoc(doc(db, "persons", uuid), {
               faceUrl: data,
-              name: "_person_" + uuid,
+              personId: uuid,
+              name: "",
             });
           } else {
-            detections[index].personId = detections[index].match.label;
+            detections[index].personId = personLabel.split("$")[0];
+            detections[index].fullName = personLabel.split("$")[1];
           }
         }
 
         for (let index = 0; index < detections.length; index++) {
+          console.log('detloop', detections[index]);
           await setDoc(
             doc(db, "facePositions", image.file.name + "-" + index),
             {
@@ -182,6 +194,7 @@ const useStorage = (image) => {
               createdAt,
               imageId: image.file.name,
               personId: detections[index].personId,
+              fullName: detections[index].fullName
             }
           );
         }

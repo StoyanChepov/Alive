@@ -1,13 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import useFacePositions from "../hooks/useFacePositions";
 import { motion } from "framer-motion";
+import { collection, updateDoc, doc, getDocs } from "firebase/firestore";
+import { db } from "../firebase/config";
+import useAllMatches from "../hooks/useAllMatches";
 
 const Modal = ({ selectedImg, setSelectedImg }) => {
-  const [friends, setFriends] = useState([]);
+  const [updatedPersonName, setFriends] = useState([]);
   const imgRef = useRef();
   const canvasRef = useRef();
   const { faces } = useFacePositions(selectedImg.id);
-  
+  const { pos } = useAllMatches(selectedImg.id);
+
   const handleClick = (e) => {
     if (e.target.classList.contains("backdrop")) {
       setSelectedImg(null);
@@ -18,15 +22,52 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
   const enter = () => {
     const ctx = canvasRef.current.getContext("2d");
     ctx.lineWidth = 5;
-    ctx.strokeStyle = "red";
-    faces.map((face) => ctx.strokeRect(face.distanceLeft, face.distanceTop, face.length, face.width));
+    ctx.strokeStyle = "blue";
+    faces.map((face) =>
+      ctx.strokeRect(
+        face.distanceLeft,
+        face.distanceTop,
+        face.length,
+        face.width
+      )
+    );
   };
 
-  function addFriend(event) {
+  function addFriend(face, event) {
+    console.log("Update face ", face);
     if (event.key === "Enter" && event.target.value !== "") {
-      setFriends(event.target.value);
+      console.log("Update name to ", event.target.value);
+      setFriends({
+        id: face.personId,
+        faceUrl: face.faceUrl,
+        newName: event.target.value,
+      });
     }
   }
+
+  useEffect(() => {
+    const updatePersonName = () => {
+      updateDoc(doc(db, "persons", updatedPersonName.id), {
+        name: updatedPersonName.newName,
+      });
+      console.log('Pos:', pos);
+      let fp = pos.filter(function (p) {
+        return p.personId === 
+         updatedPersonName.id;
+      });
+      for (let i = 0; i < fp.length; i++) {
+        updateDoc(doc(db, "facePositions", fp[i].id), {
+          fullName: updatedPersonName.newName
+        });
+      }
+    };
+
+    updatedPersonName &&
+      pos &&
+      updatedPersonName.id &&
+      updatedPersonName.newName &&
+      updatePersonName();
+  }, [updatedPersonName]);
 
   return (
     <motion.div
@@ -59,10 +100,10 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
               left: face.distanceLeft,
               top: face.distanceTop + face.width + 5,
             }}
-            placeholder= {face.personId}
+            placeholder={face.fullName == "" ? "Add name" : face.fullName}
             key={i}
             className="friendInput"
-            onKeyPress={addFriend}
+            onKeyPress={addFriend.bind(this, face)}
           />
         ))}
     </motion.div>
