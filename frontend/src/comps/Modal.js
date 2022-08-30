@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import useFacePositions from "../hooks/useFacePositions";
 import { motion } from "framer-motion";
-import { collection, updateDoc, doc, getDocs } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import useAllMatches from "../hooks/useAllMatches";
 
@@ -100,7 +100,7 @@ const Modal = ({ selectedImg, setSelectedImg }) => {
               left: face.distanceLeft,
               top: face.distanceTop + face.width + 5,
             }}
-            placeholder={face.fullName == "" ? "Add name" : face.fullName}
+            placeholder={face.fullName === "" ? "Add name" : face.fullName}
             key={i}
             className="friendInput"
             onKeyPress={addFriend.bind(this, face)}

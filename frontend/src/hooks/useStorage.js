@@ -27,6 +27,7 @@ const useStorage = (image) => {
           .detectSingleFace(img)
           .withFaceLandmarks()
           .withFaceDescriptor();
+          console.log('Result', results2);
         descriptions.push(results2.descriptor);
         return new faceapi.LabeledFaceDescriptors(
           label.personId.concat("$", label.name),
@@ -45,10 +46,9 @@ const useStorage = (image) => {
       console.log("No face found");
       return "";
     } else {
-      console.log("Match", faceImages);
       const outputImage = new Image();
       for (let index = 0; index < faceImages.length; index++) {
-        console.log(faceImages[index].toDataURL());
+        //console.log(faceImages[index].toDataURL());
         outputImage.src = faceImages[index].toDataURL();
       }
 
@@ -80,7 +80,7 @@ const useStorage = (image) => {
     }
     let faceMatcher;
     if (persons.length !== 0) {
-      console.log('i go here');
+      console.log('No person found');
       let labeledFaces = await loadLabeledImages(persons);
       console.log("Labeled Faces ", labeledFaces);
       faceMatcher = new faceapi.FaceMatcher(labeledFaces, 0.6);
@@ -162,6 +162,9 @@ const useStorage = (image) => {
         let persons = await getPersons();
         let detections = await findMatches(persons);
         console.log("Det", detections);
+        if(!detections) {
+          detections = [];
+        }
         const img = new Image();
         img.src = URL.createObjectURL(image.file);
         for (let index = 0; index < detections.length; index++) {
