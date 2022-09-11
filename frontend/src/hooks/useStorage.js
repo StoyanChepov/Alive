@@ -80,7 +80,6 @@ const useStorage = (image) => {
     }
     let faceMatcher;
     if (persons.length !== 0) {
-      console.log('No person found');
       let labeledFaces = await loadLabeledImages(persons);
       console.log("Labeled Faces ", labeledFaces);
       faceMatcher = new faceapi.FaceMatcher(labeledFaces, 0.6);
